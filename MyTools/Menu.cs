@@ -9,15 +9,6 @@ namespace MyTools
 {
     public static class Menu
     {
-
-        //static void SelectOption(string opcion)
-        //{
-        //    Console.BackgroundColor = ConsoleColor.White;
-        //    Console.ForegroundColor = ConsoleColor.Black;
-        //    Console.WriteLine($"\t>>{opcion} <<");
-        //    Console.ResetColor();
-        //}
-
         public static int MostrarMenu(string titulo, string[] opciones)
         {
             Console.CursorVisible = false;
