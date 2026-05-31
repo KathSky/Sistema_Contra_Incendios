@@ -55,6 +55,8 @@ namespace MyTools
         public static void IniciarMonitoreo()
         {
             Console.Clear();
+            DateTime ahora = DateTime.Now;
+            Textos.ImprimirAmarillo($"Fecha y hora: {ahora:dd/MM/yyyy HH:mm:ss}");
             Textos.ImprimirCyanAnimado("---MONITOREO DEL SISTEMA CONTRA INCENDIOS---");
             Textos.ImprimirAmarillo("presione la tecla ESC para detener el monitoreo...");
 

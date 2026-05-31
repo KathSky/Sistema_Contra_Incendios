@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MyTools;
 
+
 namespace sistema_contra_incendios
 {
     internal class Program
