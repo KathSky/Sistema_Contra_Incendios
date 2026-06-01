@@ -30,7 +30,7 @@ namespace sistema_contra_incendios
                         PanelCentral.IniciarMonitoreo();
                         break;
                     default:
-                        Textos.ImprimirMagentaAnimado("saliendo el sistema.....");
+                        Textos.ImprimirMagentaAnimado("saliendo del sistema.....");
                         break;
                 }
             }
