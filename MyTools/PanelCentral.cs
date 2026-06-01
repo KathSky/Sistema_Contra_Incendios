@@ -90,34 +90,27 @@ namespace MyTools
         }
         private static void ActivarLucesEstroboscopicas()
         {
-            
+            Textos.ImprimirRojoAnimado("===== 🔥 ALARMA DE INCENDIO 🔥 =====");
 
-            for (int i = 0; i < 10; i++)
+            for (int ciclo = 0; ciclo < 5; ciclo++)
             {
-                // Encendido de la luz
                 Console.BackgroundColor = ConsoleColor.Red;
-                Console.ForegroundColor = ConsoleColor.White;
                 Console.Clear();
-      
-                Textos.ImprimirRojoAnimado("=====⚠ ALARMA DE INCENDIO :( ⚠=====");
-                Textos.ImprimirMagentaAnimado("LUCES ESTROBOSCÓPICAS ACTIVADAS");
-                Textos.ImprimirAmarilloAnimado("INICIE LA EVACUACIÓN");
+                Console.Beep(900, 180);
 
-                Console.Beep(1200, 150);
-                Console.Beep(4000, 150);
-                Thread.Sleep(300);
+                Console.BackgroundColor = ConsoleColor.White;
+                Console.Clear();
+                Console.Beep(1200, 180);
 
-                // Apagado de la luz
                 Console.ResetColor();
                 Console.Clear();
-                Thread.Sleep(300);
+                Thread.Sleep(100);
             }
-
             Console.ResetColor();
             Console.Clear();
 
-            Textos.ImprimirMagentaAnimado("Siga las instrucciones de evacuación.");
+            Textos.ImprimirMagentaAnimado("LUCES ESTROBOSCÓPICAS ACTIVADAS");
+            Textos.ImprimirAmarilloAnimado("INICIE LA EVACUACIÓN");
         }
-
     }
 }
