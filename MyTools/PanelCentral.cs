@@ -85,6 +85,35 @@ namespace MyTools
             Textos.ImprimirCyan("Monitoreo detenido. Presiona cualquier tecla para volver al menú...");
             Console.ReadKey();
         }
+        private static void ActivarLucesEstroboscopicas() //
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                // Encendido de la luz
+                Console.BackgroundColor = ConsoleColor.Red;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Clear();
+
+                Console.WriteLine("\n\n");
+                Console.WriteLine("⚠ ALARMA DE INCENDIO ⚠");
+                Console.WriteLine("LUCES ESTROBOSCÓPICAS ACTIVADAS");
+                Console.WriteLine("INICIE LA EVACUACIÓN");
+
+                Console.Beep(1200, 150);
+                Console.Beep(4000, 150);
+                Thread.Sleep(300);
+
+                // Apagado de la luz
+                Console.ResetColor();
+                Console.Clear();
+                Thread.Sleep(300);
+            }
+
+            Console.ResetColor();
+            Console.Clear();
+
+            Textos.ImprimirRojo("Siga las instrucciones de evacuación.");
+        }
 
     }
 }
