@@ -16,6 +16,7 @@ namespace MyTools
         public static void MostrarSensores()
         {
             Console.Clear();
+            Textos.ImprimirAmarillo($"Fecha y hora: {DateTime.Now:dd/MM/yyyy HH:mm:ss}\n");
             Textos.ImprimirCyanAnimado("---SENSORES DIRECCIONALES CONECTADOS---");
 
             for (int i = 0; i < sensores.Length; i++)
@@ -29,6 +30,7 @@ namespace MyTools
         public static void PruebaOperatividad()
         {
             Console.Clear();
+            Textos.ImprimirAmarillo($"Fecha y hora: {DateTime.Now:dd/MM/yyyy HH:mm:ss}\n");
             Textos.ImprimirCyanAnimado("---INICIANDO COMISIONADO Y PRUEBAS---");
 
             for (int i = 0; i < sensores.Length; i++)
