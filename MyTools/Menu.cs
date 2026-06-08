@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace MyTools
 {
-    //Linea 10
     public static class Menu
     {
         public static int MostrarMenu(string titulo, string[] opciones)
