@@ -21,7 +21,6 @@ namespace MyTools
                 Textos.ImprimirMagenta($"\t╔{lineaHorizontal}╗");
                 Textos.ImprimirMagenta($"\t║ {titulo} ║");
                 Textos.ImprimirMagenta($"\t╚{lineaHorizontal}╝");
-                Textos.ImprimirCyan($"\tFecha y hora: {DateTime.Now:dd/MM/yyyy HH:mm:ss}\n");
 
                 for (int i = 0; i < opciones.Length; i++)
                 {

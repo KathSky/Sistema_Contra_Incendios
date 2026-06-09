@@ -16,8 +16,15 @@ namespace sistema_contra_incendios
             int eleccion = 0;
             do
             {
-                string[] opciones = { "ver sensores iniciados", "realizar prueba de operatividad", "iniciar monitoreo en tiempo real", "estación manual", "ver historial", "restablecer sistema", "configuración del sistema", "salir" };
-                eleccion = Menu.MostrarMenu("PANEL CENTRAL SCI - PROYECTO", opciones);
+                string[] opciones = {
+                    "Ver sensores iniciados",
+                    "Realizar prueba de operatividad",
+                    "Iniciar monitoreo en tiempo real",
+                    "Activación manual de alarma por piso",
+                    "Ver historial de alertas y eventos",
+                    "Salir del sistema"
+                };
+                eleccion = Menu.MostrarMenu("PANEL CENTRAL SCI - SISTEMA CONTRA INCENDIOS", opciones);
                 switch (eleccion)
                 {
                     case 0:
@@ -30,27 +37,20 @@ namespace sistema_contra_incendios
                         PanelCentral.IniciarMonitoreo();
                         break;
                     case 3:
-                        PanelCentral.EstacionesManuales();
+                        PanelCentral.ActivacionManual();
                         break;
-
                     case 4:
                         PanelCentral.MostrarHistorial();
                         break;
-                    case 5:
-                        PanelCentral.RestablecerSistema();
-                        break;
-                    case 6:
-                        PanelCentral.ConfiguracionSistema();
-                        break;
                     default:
-                        Textos.ImprimirMagentaAnimado("saliendo del sistema.....");
+                        Textos.ImprimirMagentaAnimado("Saliendo del sistema.....");
                         break;
                 }
             }
-            while (eleccion != 7);
+            while (eleccion != 5);
 
             Textos.ImprimirMagentaAnimado("Gracias por utilizar el sistema de control de incendios. ¡Hasta luego!");
             Console.ReadKey();
         }
-    }   
+    }
 }

@@ -9,338 +9,221 @@ namespace MyTools
 {
     public static class PanelCentral
     {
-        static string[] sensores =
+        static string[] pisos;
+        static string[] sensores;
+        static bool[] sensoresEstado;
+        static string[] historial;
+        static int historialContador;
+        static Random simulador;
+
+        static PanelCentral()
         {
-                "Sensor Humo - Zona 1", "Sensor Temperatura - Zona 1",
+            pisos = new string[] { "Piso 1", "Piso 2", "Piso 3" };
+            sensores = InicializarSensores(pisos);
 
-                "Sensor Humo - Zona 2", "Sensor Temperatura - Zona 2",
+            sensoresEstado = new bool[sensores.Length];
+            for (int i = 0; i < sensoresEstado.Length; i++)
+            {
+                sensoresEstado[i] = true;
+            }
 
-                "Sensor Humo - Zona 3", "Sensor Temperatura - Zona 3",
-        };
-        static bool[] estadoDispositivos =
+            historial = new string[100];
+            historialContador = 0;
+            simulador = new Random();
+
+            RegistrarHistorial($"Sistema SCI Iniciado. Monitoreando {pisos.Length} pisos con {sensores.Length} dispositivos.");
+        }
+
+        private static string[] InicializarSensores(string[] listaPisos)
         {
-            true,true,true,
-            true,true,true,
-            true,true,true
-        };
+            string[] tempSensores = new string[listaPisos.Length * 3];
+            for (int i = 0; i < listaPisos.Length; i++)
+            {
+                tempSensores[i * 3] = $"Sensor Humo - {listaPisos[i]}";
+                tempSensores[i * 3 + 1] = $"Sensor Temp - {listaPisos[i]}";
+                tempSensores[i * 3 + 2] = $"Estación Manual - {listaPisos[i]}";
+            }
+            return tempSensores;
+        }
 
-        static Random simulador = new Random();
-        static string modoAlerta = "AUTOMÁTICO";
-        static int umbralTemperatura = 70;
-        static int umbralHumo = 60;
-        static List<string> historial = new List<string>();
+        public static void RegistrarHistorial(string evento)
+        {
+            DateTime ahora = DateTime.Now;
+            string registro = $"[{ahora:dd/MM/yyyy HH:mm:ss}] {evento}";
+
+            if (historialContador < historial.Length)
+            {
+                historial[historialContador] = registro;
+                historialContador++;
+            }
+            else
+            {
+                for (int i = 1; i < historial.Length; i++)
+                {
+                    historial[i - 1] = historial[i];
+                }
+                historial[historial.Length - 1] = registro;
+            }
+        }
 
         public static void MostrarSensores()
         {
             Console.Clear();
-            Textos.ImprimirAmarillo($"Fecha y hora: {DateTime.Now:dd/MM/yyyy HH:mm:ss}\n");
-            Textos.ImprimirCyanAnimado("---SENSORES DIRECCIONALES CONECTADOS---");
+            Textos.ImprimirCyanAnimado("--- SENSORES DIRECCIONALES CONECTADOS ---");
 
             for (int i = 0; i < sensores.Length; i++)
             {
-                string estado;
-
-                if (estadoDispositivos[i])
-                    estado = "ACTIVO";
+                if (sensoresEstado[i])
+                {
+                    Textos.ImprimirVerde($"Dirección: {i + 1:D2} - {sensores[i]} [OK - ACTIVO]");
+                }
                 else
-                    estado = "INACTIVO";
-
-                Textos.ImprimirVerde(
-                    $"Dirección: {i + 1} - {sensores[i]} [{estado}]"
-                );
+                {
+                    Textos.ImprimirRojo($"Dirección: {i + 1:D2} - {sensores[i]} [FALLO - FUERA DE LÍNEA]");
+                }
             }
             Textos.ImprimirMagenta("\nPresiona cualquier tecla para volver al menú...");
-            Console.ReadKey();
+            Console.ReadKey(true);
         }
 
         public static void PruebaOperatividad()
         {
             Console.Clear();
-            historial.Add($"{DateTime.Now:dd/MM/yyyy HH:mm:ss} - Comisionado completado. Todos los dispositivos operan correctamente."
-);
-            Textos.ImprimirAmarillo($"Fecha y hora: {DateTime.Now:dd/MM/yyyy HH:mm:ss}\n");
-            Textos.ImprimirCyanAnimado("---INICIANDO COMISIONADO Y PRUEBAS---");
+            Textos.ImprimirCyanAnimado("--- INICIANDO PRUEBAS DE OPERATIVIDAD ---");
+            RegistrarHistorial("Prueba de operatividad de sensores iniciada.");
 
+            bool algunFallo = false;
             for (int i = 0; i < sensores.Length; i++)
             {
                 Textos.ImprimirMagenta($"Probando {sensores[i]}...");
-                Thread.Sleep(500);
+                Thread.Sleep(200);
 
                 int probabilidadFallo = simulador.Next(0, 100);
 
-                if (probabilidadFallo > 85)
+                if (probabilidadFallo > 90)
                 {
-                    Textos.ImprimirRojo("ERROR DE LECTURA!");
-
+                    Textos.ImprimirRojo($"¡FALLO DETECTADO en {sensores[i]}!");
+                    RegistrarHistorial($"Fallo de comisionado en: {sensores[i]}");
+                    sensoresEstado[i] = false;
+                    algunFallo = true;
                 }
                 else
                 {
-                    Textos.ImprimirVerde("respuesta correcta...");
-                    historial.Add($"{DateTime.Now:dd/MM/yyyy HH:mm:ss} - Prueba realizada a {sensores[i]}");              }
+                    Textos.ImprimirVerde("Respuesta correcta [OK]");
+                    sensoresEstado[i] = true;
                 }
-            Textos.ImprimirAmarillo("Pruebas finalizadas. Presiona cualquier tecla para volver al menú...");
-            Console.ReadKey();
+            }
+
+            if (algunFallo)
+            {
+                Textos.Warning("Se detectaron fallos en uno o más sensores.");
+                RegistrarHistorial("Prueba de operatividad finalizada con advertencias.");
+            }
+            else
+            {
+                Textos.ImprimirVerde("\nTodas las pruebas finalizaron con éxito.");
+                RegistrarHistorial("Prueba de operatividad finalizada con éxito.");
+            }
+
+            Textos.ImprimirAmarillo("\nPresiona cualquier tecla para volver al menú...");
+            Console.ReadKey(true);
         }
 
         public static void IniciarMonitoreo()
         {
             Console.Clear();
-
             DateTime ahora = DateTime.Now;
-            DateTime inicioMonitoreo = DateTime.Now;
+            Textos.ImprimirAmarillo($"Fecha y hora de inicio: {ahora:dd/MM/yyyy HH:mm:ss}");
+            Textos.ImprimirCyanAnimado("--- MONITOREO DE SISTEMA CONTRA INCENDIOS EN TIEMPO REAL ---");
+            Textos.ImprimirAmarillo("Presione la tecla ESC para detener el monitoreo...\n");
 
-            Textos.ImprimirAmarillo($"Fecha y hora: {ahora:dd/MM/yyyy HH:mm:ss}");
-            Textos.ImprimirCyanAnimado("---MONITOREO DEL SISTEMA CONTRA INCENDIOS---");
-            Textos.ImprimirAmarillo("Presione cualquier tecla para detener el monitoreo...\n");
+            RegistrarHistorial("Monitoreo en tiempo real activado.");
+            bool alarmaActivada = false;
 
-            while (!Console.KeyAvailable)
+            while (!alarmaActivada)
             {
-                int indiceSensor = simulador.Next(0, sensores.Length);
-
-                int temperaturaSimulada = simulador.Next(20, 80);
-
-                int porcentajeHumo = simulador.Next(0, 100);
-
-                TimeSpan tiempoTranscurrido =
-                    DateTime.Now - inicioMonitoreo;
-
-                if (temperaturaSimulada >= umbralTemperatura ||
-                    porcentajeHumo >= umbralHumo)
+                if (Console.KeyAvailable)
                 {
-                    if (modoAlerta == "AUTOMÁTICO")
+                    ConsoleKeyInfo tecla = Console.ReadKey(true);
+                    if (tecla.Key == ConsoleKey.Escape)
                     {
-                        Textos.ImprimirRojo(
-                            $"¡ALERTA! {sensores[indiceSensor]} | Temp: {temperaturaSimulada}°C | Humo: {porcentajeHumo}%"
-                        );
-
-                        historial.Add(
-                            $"{DateTime.Now:dd/MM/yyyy HH:mm:ss} - ALARMA EN {sensores[indiceSensor]} | Temp: {temperaturaSimulada}°C | Humo: {porcentajeHumo}%"
-                        );
-
-                        Console.Beep(1000, 2000);
-
-                        ActivarLucesEstroboscopicas();
-
-                        Textos.ImprimirAmarillo(
-                            "Monitoreo reanudado...\n"
-                        );
+                        break;
                     }
-                    else
-                    {
-                        Textos.ImprimirAmarillo(
-                            $"ADVERTENCIA: Umbral superado en {sensores[indiceSensor]} | Temp: {temperaturaSimulada}°C | Humo: {porcentajeHumo}%"
-                        );
+                }
 
-                        Textos.ImprimirAmarillo(
-                            "Se requiere activación manual de una estación."
-                        );
-                    }
+                int indicePiso = simulador.Next(0, pisos.Length);
+                string piso = pisos[indicePiso];
+
+                int estadoSensor = simulador.Next(0, 100);
+
+                if (estadoSensor < 10)
+                {
+                    int dispositivoAleatorio = simulador.Next(0, 3);
+                    int indiceSensorFallo = (indicePiso * 3) + dispositivoAleatorio;
+                    sensoresEstado[indiceSensorFallo] = false;
+
+                    string dispositivoFallo = sensores[indiceSensorFallo];
+                    string mensajeFallo = $"[FALLO] {piso} - {dispositivoFallo} reporta error / fuera de línea";
+                    Textos.ImprimirRojo(mensajeFallo);
+                    RegistrarHistorial(mensajeFallo);
                 }
                 else
                 {
-                    Textos.ImprimirVerde(
-                        $"Tiempo: {(int)tiempoTranscurrido.TotalSeconds}s | " +
-                        $"{sensores[indiceSensor]} | " +
-                        $"Temperatura: {temperaturaSimulada}°C | " +
-                        $"Humo: {porcentajeHumo}%"
-                    );
+                    sensoresEstado[indicePiso * 3] = true;
+                    sensoresEstado[indicePiso * 3 + 1] = true;
+                    sensoresEstado[indicePiso * 3 + 2] = true;
+
+                    int humoSimulado = simulador.Next(0, 101);
+                    int tempSimulada = simulador.Next(15, 101);
+
+                    bool humoCritico = humoSimulado >= 70;
+                    bool tempCritica = tempSimulada >= 70;
+
+                    bool humoAdvertencia = humoSimulado >= 30 && humoSimulado < 70;
+                    bool tempAdvertencia = tempSimulada >= 45 && tempSimulada < 70;
+
+                    if (humoCritico && tempCritica)
+                    {
+                        alarmaActivada = true;
+                        string alertaIncendio = $"¡INCENDIO DETECTADO! {piso} - Humo: {humoSimulado}%, Temp: {tempSimulada}°C (NIVEL CRÍTICO)";
+                        Textos.ImprimirRojo(alertaIncendio);
+                        RegistrarHistorial(alertaIncendio);
+                        ActivarLucesEstroboscopicas(piso);
+                    }
+                    else if (humoCritico || tempCritica || humoAdvertencia || tempAdvertencia)
+                    {
+                        string detalle = "";
+                        if (humoCritico) detalle = "Humo crítico, temperatura normal";
+                        else if (tempCritica) detalle = "Temperatura crítica, humo normal";
+                        else if (humoAdvertencia && tempAdvertencia) detalle = "Humo y temperatura moderados";
+                        else if (humoAdvertencia) detalle = "Humo moderado";
+                        else detalle = "Temperatura moderada";
+
+                        string alertaAdvertencia = $"[ADVERTENCIA] {piso} - {detalle}. Humo: {humoSimulado}%, Temp: {tempSimulada}°C";
+                        Textos.ImprimirAmarillo(alertaAdvertencia);
+                        RegistrarHistorial(alertaAdvertencia);
+                    }
+                    else
+                    {
+                        Textos.ImprimirVerde($"[OK] {piso} - Sensores activos y funcionando bien. Humo: {humoSimulado}%, Temp: {tempSimulada}°C");
+                    }
                 }
 
-                Thread.Sleep(800);
+                Thread.Sleep(1000);
             }
 
-            if (Console.KeyAvailable)
-                Console.ReadKey(true);
-
-            Textos.ImprimirCyan(
-                "\nMonitoreo detenido. Presiona cualquier tecla para volver al menú..."
-            );
-
-            Console.ReadKey();
-        }
-
-        public static void EstacionesManuales()
-        {
-            Console.Clear();
-
-            Textos.ImprimirCyanAnimado("--- ESTACIONES MANUALES ---");
-
-            Console.Write("1. Estación Manual - Zona 1 ");
-
-            if (estadoDispositivos[2])
-                Textos.ImprimirVerde("[ACTIVO]");
-            else
-                Textos.ImprimirRojo("[INACTIVO]");
-
-            Console.Write("2. Estación Manual - Zona 2 ");
-
-            if (estadoDispositivos[5])
-                Textos.ImprimirVerde("[ACTIVO]");
-            else
-                Textos.ImprimirRojo("[INACTIVO]");
-            Console.Write("3. Estación Manual - Zona 3 ");
-            if (estadoDispositivos[8])
-                Textos.ImprimirVerde("[ACTIVO]");
-            else
-                Textos.ImprimirRojo("[INACTIVO]");
-            Console.Write("\nSeleccione una zona (1-3): ");
-            int zona = int.Parse(Console.ReadLine());
-
-            Console.WriteLine("\n1. Activar");
-            Console.WriteLine("2. Desactivar");
-
-            Console.Write("Seleccione una opción: ");
-            int accion = int.Parse(Console.ReadLine());
-
-            int indice = 0;
-
-            if (zona == 1)
-                indice = 2;
-            else if (zona == 2)
-                indice = 5;
-            else if (zona == 3)
-                indice = 8;
-
-            if (accion == 1)
+            if (!alarmaActivada)
             {
-                estadoDispositivos[indice] = true;
-
-                Textos.ImprimirVerde("Estación manual activada.");
-            }
-            else if (accion == 2)
-            {
-                estadoDispositivos[indice] = false;
-
-                Textos.ImprimirRojo("Estación manual desactivada.");
+                RegistrarHistorial("Monitoreo en tiempo real finalizado por el usuario.");
             }
 
-            Textos.ImprimirAmarillo("\nPresione cualquier tecla para volver al menú principal...");
-            Console.ReadKey();
-            return;
+            Textos.ImprimirCyan("\nMonitoreo detenido. Presiona cualquier tecla para volver al menú...");
+            Console.ReadKey(true);
         }
-        public static void ConfiguracionSistema()
+
+        private static void ActivarLucesEstroboscopicas(string piso)
         {
-            int opcion;
-            do
-            {
-                Console.Clear();
-                Textos.ImprimirCyanAnimado("--- CONFIGURACIÓN DEL SISTEMA ---");
-
-                Console.WriteLine("\n[1] Ver modo de alertas");
-                Console.WriteLine("[2] Cambiar modo de alertas");
-                Console.WriteLine("[3] Cambiar umbral de temperatura °C");
-                Console.WriteLine("[4] Cambiar umbral de humo %");
-                Console.WriteLine("[0] Volver al menú principal");
-
-                Console.Write("\nSeleccione una opción --> ");
-                opcion = int.Parse(Console.ReadLine());
-                switch (opcion)
-                {
-                    case 1:
-
-                        Console.Clear();
-                        Textos.ImprimirVerde($"Modo actual: {modoAlerta}");
-                        Console.ReadKey();
-
-                        break;
-
-                    case 2:
-
-                        Console.Clear();
-
-                        Console.WriteLine("1. AUTOMÁTICO");
-                        Console.WriteLine("2. MANUAL");
-
-                        Console.Write("\nSeleccione una opción: ");
-
-                        int modo = int.Parse(Console.ReadLine());
-
-                        if (modo == 1)
-                            modoAlerta = "AUTOMÁTICO";
-                        else if (modo == 2)
-                            modoAlerta = "MANUAL";
-
-                        Textos.ImprimirVerde($"Modo cambiado a {modoAlerta}");
-                        Console.ReadKey();
-
-                        break;
-
-                    case 3:
-
-                        Console.Clear();
-
-                        Console.WriteLine($"Umbral actual: {umbralTemperatura}°C");
-
-                        Console.Write("\nNuevo umbral de temperatura: ");
-
-                        umbralTemperatura = int.Parse(Console.ReadLine());
-
-                        Textos.ImprimirVerde("Temperatura actualizada.");
-                        Console.ReadKey();
-
-                        break;
-
-                    case 4:
-
-                        Console.Clear();
-
-                        Console.WriteLine($"Umbral actual: {umbralHumo}%");
-
-                        Console.Write("\nNuevo umbral de humo: ");
-
-                        umbralHumo = int.Parse(Console.ReadLine());
-
-                        Textos.ImprimirVerde("Porcentaje de humo actualizado.");
-                        Console.ReadKey();
-
-                        break;
-                }
-
-            } while (opcion != 0);
-        }
-        public static void RestablecerSistema()
-        {
-            Console.Clear();
-
-            Textos.ImprimirAmarillo($"Fecha y hora: {DateTime.Now:dd/MM/yyyy HH:mm:ss}\n");
-
-            Textos.ImprimirCyanAnimado("--- RESTABLECIENDO SISTEMA ---");
-
-            Thread.Sleep(1000);
-
-            Textos.ImprimirVerde("Alarmas reiniciadas.");
-            Textos.ImprimirVerde("Sistema normalizado.");
-
-            historial.Add($"{DateTime.Now:dd/MM/yyyy HH:mm:ss} - SISTEMA RESTABLECIDO");
-
-            Console.ReadKey();
-        }
-        public static void MostrarHistorial()
-        {
-            Console.Clear();
-
-            Textos.ImprimirAmarillo($"Fecha y hora: {DateTime.Now:dd/MM/yyyy HH:mm:ss}\n");
-
-            Textos.ImprimirCyanAnimado("--- HISTORIAL DEL SISTEMA ---");
-
-            if (historial.Count == 0)
-            {
-                Textos.ImprimirRojo("No existen eventos registrados.");
-            }
-            else
-            {
-                for (int i = 0; i < historial.Count; i++)
-                {
-                    Textos.ImprimirVerde(historial[i]);
-                }
-            }
-
-            Textos.ImprimirMagenta("\nPresiona cualquier tecla para volver...");
-            Console.ReadKey();
-        }
-        private static void ActivarLucesEstroboscopicas()
-        {
-            Textos.ImprimirRojoAnimado("===== 🔥 ALARMA DE INCENDIO 🔥 =====");
+            Textos.ImprimirRojoAnimado($"\n===== 🔥 ACTIVANDO ALARMA DE INCENDIO EN {piso.ToUpper()} 🔥 =====");
 
             for (int ciclo = 0; ciclo < 5; ciclo++)
             {
@@ -359,8 +242,75 @@ namespace MyTools
             Console.ResetColor();
             Console.Clear();
 
-            Textos.ImprimirMagentaAnimado("LUCES ESTROBOSCÓPICAS ACTIVADAS");
-            Textos.ImprimirAmarilloAnimado("INICIE LA EVACUACIÓN");
+            Textos.ImprimirMagentaAnimado($"[SISTEMA SCI] LUCES ESTROBOSCÓPICAS ENCIENDEN EN: {piso.ToUpper()}");
+            Textos.ImprimirAmarilloAnimado("¡PROCEDA A LA EVACUACIÓN INMEDIATAMENTE!");
+        }
+
+        public static void ActivacionManual()
+        {
+            Console.Clear();
+
+            string[] opcionesManual = new string[pisos.Length + 1];
+            for (int i = 0; i < pisos.Length; i++)
+            {
+                opcionesManual[i] = $"Activar alarma en {pisos[i]}";
+            }
+            opcionesManual[pisos.Length] = "Volver al menú principal";
+
+            int eleccion = Menu.MostrarMenu("ACTIVACIÓN MANUAL - SELECCIONE PISO", opcionesManual);
+
+            if (eleccion >= 0 && eleccion < pisos.Length)
+            {
+                string pisoSeleccionado = pisos[eleccion];
+                Console.Clear();
+
+                string mensajeEmergencia = $"¡EMERGENCIA! Activación manual de estación manual contra incendios en: {pisoSeleccionado}.";
+                Textos.ImprimirRojo(mensajeEmergencia);
+                RegistrarHistorial(mensajeEmergencia);
+
+                ActivarLucesEstroboscopicas(pisoSeleccionado);
+
+                Textos.ImprimirMagenta("\nPresiona cualquier tecla para volver al menú principal...");
+                Console.ReadKey(true);
+            }
+            else
+            {
+                Textos.ImprimirMagentaAnimado("Regresando al menú principal...");
+                Thread.Sleep(500);
+            }
+        }
+
+        public static void MostrarHistorial()
+        {
+            Console.Clear();
+            Textos.ImprimirCyanAnimado("--- HISTORIAL DE ALERTAS Y EVENTOS DEL SISTEMA ---");
+
+            if (historialContador == 0)
+            {
+                Textos.ImprimirAmarillo("El historial está vacío. No se han registrado eventos.");
+            }
+            else
+            {
+                for (int i = 0; i < historialContador; i++)
+                {
+                    string evento = historial[i];
+                    if (evento.Contains("INCENDIO") || evento.Contains("EMERGENCIA"))
+                    {
+                        Textos.ImprimirRojo(evento);
+                    }
+                    else if (evento.Contains("ADVERTENCIA") || evento.Contains("FALLO"))
+                    {
+                        Textos.ImprimirAmarillo(evento);
+                    }
+                    else
+                    {
+                        Textos.ImprimirVerde(evento);
+                    }
+                }
+            }
+
+            Textos.ImprimirMagenta("\nPresiona cualquier tecla para volver al menú...");
+            Console.ReadKey(true);
         }
     }
 }

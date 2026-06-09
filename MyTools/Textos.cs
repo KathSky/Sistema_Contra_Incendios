@@ -9,27 +9,26 @@ namespace MyTools
 {
     public static class Textos
     {
-        static void Imprimir(string mensaje, ConsoleColor color) 
+        static void Imprimir(string mensaje, ConsoleColor color)
         {
-            Console.ForegroundColor = color; //se le asigna el color que resivimos al texto
-            Console.WriteLine(mensaje); //Imprime el mensaje con el color seleccionado
-            Console.ResetColor(); //Restablece el color del texto al predeterminado de la consola después de imprimir el mensaje
+            Console.ForegroundColor = color;
+            Console.WriteLine(mensaje);
+            Console.ResetColor();
         }
 
         static void ImprimirAnimado(string mensaje, ConsoleColor color)
         {
             Console.ForegroundColor = color;
-            mensaje += "\n";//Cada vez que resivimos un mensaje se le agrega un salto de linea al final, por que lo q vamos hacer es escribir con un for letra por letra, y como no se está utilizando el console.writeLine tenemos q poner siempre un salto de linea al final de cada mensaje resivido     
+            mensaje += "\n";
             for (int i = 0; i < mensaje.Length; i++)
             {
                 Console.Write(mensaje[i]);
-                Thread.Sleep(30); //espera de 30 milisegundos entre cada letra
+                Thread.Sleep(30);
             }
             Console.ResetColor();
-        } 
-        //estos son metodos privados, que no salen de está clase
-        
-        public static void ImprimirRojo(string text) //que tipo de acciones se va a hacer, y que tipo de color se va a poner
+        }
+
+        public static void ImprimirRojo(string text)
         {
             Imprimir(text, ConsoleColor.Red);
         }
@@ -89,7 +88,8 @@ namespace MyTools
             ImprimirAnimado(text, ConsoleColor.Magenta);
         }
 
-        public static void SelectTextAmarillo(string text) {
+        public static void SelectTextAmarillo(string text)
+        {
             Console.BackgroundColor = ConsoleColor.Yellow;
             text = $"\t>>{text} <<";
             Imprimir(text, ConsoleColor.Black);
@@ -103,6 +103,22 @@ namespace MyTools
             Imprimir(text, ConsoleColor.Black);
             Console.ResetColor();
         }
+
+        public static void Warning(string text)
+        {
+            ImprimirAmarillo($"ADVERTENCIA: {text}");
+        }
+
+        public static void Error(string text)
+        {
+            ImprimirAmarillo($"ERROR: {text}");
+        }
+
+        public static void Success(string text)
+        {
+            ImprimirAmarillo($"{text}");
+        }
+
         public static void SelectTextMagenta(string text)
         {
             Console.BackgroundColor = ConsoleColor.Magenta;
