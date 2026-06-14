@@ -111,12 +111,12 @@ namespace MyTools
 
         public static void Error(string text)
         {
-            ImprimirAmarillo($"ERROR: {text}");
+            ImprimirRojo($"ERROR: {text}");
         }
 
         public static void Success(string text)
         {
-            ImprimirAmarillo($"{text}");
+            ImprimirVerde($"{text}");
         }
 
         public static void SelectTextMagenta(string text)
